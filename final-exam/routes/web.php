@@ -41,9 +41,11 @@ Route::get('/questions/create', [QuestionController::class, 'create'])->name('qu
 Route::post('/questions', [QuestionController::class, 'store'])->name('question.store');
 Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('question.edit');
 Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('question.update');
+Route::delete('/question/{question}', [QuizController::class, 'destroy'])->name('question.delete');
 
 
-    
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -54,4 +56,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

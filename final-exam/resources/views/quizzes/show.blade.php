@@ -53,9 +53,10 @@
                     selectOption(index, question.correct_answer);
                 });
             });
-            questionInfo.textContent = `Question ${currentQuestionIndex + 1}/` + {{{ $quiz->questions->count() }}};
+            questionInfo.textContent = `Question ${currentQuestionIndex + 1}/` + {{ { $quiz -> questions -> count() } }
+        };
 
-        }
+    }
 
         function selectOption(selectedIndex, correctAnswer) {
             let correct_answer_number = correctAnswer.charAt(correctAnswer.length - 1) - 1;
@@ -65,19 +66,20 @@
                 mistakenCount++;
             }
 
-            if (currentQuestionIndex < {{ $quiz->questions->count() }} - 1) {
-                currentQuestionIndex++;
-                loadQuestion(currentQuestionIndex);
-            } else {
-                displayResult();
-            }
-        }
-
-        function displayResult() {
-            quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount} mistakes ${mistakenCount} </h3>`;
-            backBtn.style.display = '';
-        }
-
+            if (currentQuestionIndex < {{ $quiz -> questions -> count() }
+        } - 1) {
+        currentQuestionIndex++;
         loadQuestion(currentQuestionIndex);
+    } else {
+        displayResult();
+    }
+        }
+
+    function displayResult() {
+        quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount} mistakes ${mistakenCount} </h3>`;
+        backBtn.style.display = '';
+    }
+
+    loadQuestion(currentQuestionIndex);
     });
 </script>
