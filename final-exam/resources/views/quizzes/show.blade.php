@@ -1,24 +1,20 @@
-<!-- @foreach($quiz->questions as $question)
-    <div>
-        <h2>{{ $question->question }}</h2>
-        <p>Answers: {{ $question->answer1 }}, {{ $question->answer2 }}, {{ $question->answer3 }}, {{ $question->answer4 }}</p>
-    </div>
-@endforeach -->
 <div class="container mt-5">
     <h1>{{ $quiz->name }}</h1>
-    <div id="quiz-container">
-        <!-- Questions and options will be loaded here dynamically -->
-    </div>
+    <p id="question-info" class="mt-3"></p>
+    <div id="quiz-container"></div>
     <a id="goToIndexPage" class="btn btn-primary" href="/" role="button" style="display: none;">Go Back</a>
 </div>
+
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         let quizId = "{{ $quiz->id }}";
         let quizContainer = document.getElementById('quiz-container');
         let backBtn = document.getElementById("goToIndexPage");
+        let questionInfo = document.getElementById('question-info');
         let currentQuestionIndex = 0;
         let correctCount = 0;
-        let mistakenCount = 0
+        let mistakenCount = 0;
+
         function loadQuestion(index) {
             let xhr = new XMLHttpRequest();
             xhr.open('GET', `/quiz/${quizId}/question/${index}`);
@@ -57,10 +53,11 @@
                     selectOption(index, question.correct_answer);
                 });
             });
+            questionInfo.textContent = `Question ${currentQuestionIndex + 1}/` + {{{ $quiz->questions->count() }}};
+
         }
 
         function selectOption(selectedIndex, correctAnswer) {
-            console.log(selectedIndex, correctAnswer)
             let correct_answer_number = correctAnswer.charAt(correctAnswer.length - 1) - 1;
             if (selectedIndex == correct_answer_number) {
                 correctCount++;
@@ -68,7 +65,7 @@
                 mistakenCount++;
             }
 
-            if (currentQuestionIndex < {{ $quiz->questions->count() }} - 1 ) {
+            if (currentQuestionIndex < {{ $quiz->questions->count() }} - 1) {
                 currentQuestionIndex++;
                 loadQuestion(currentQuestionIndex);
             } else {
@@ -76,23 +73,11 @@
             }
         }
 
-        loadQuestion(currentQuestionIndex);
-        function displayResult(){
-            quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount}  mistakes ${mistakenCount} or Redirect </h3>`;
+        function displayResult() {
+            quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount} mistakes ${mistakenCount} </h3>`;
             backBtn.style.display = '';
         }
-        // quizContainer.addEventListener('click', function (event) {
-        //     if (event.target.tagName === 'BUTTON') {
-        //         setTimeout(function () {
-        //             currentQuestionIndex++;
 
-        //             if (currentQuestionIndex < {{ $quiz->questions->count() }}) {
-        //                 loadQuestion(currentQuestionIndex);
-        //             } else {
-        //                 quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount}  mistakes ${mistakenCount} or Redirect </h3>`;
-        //             }
-        //         }, 1000);
-        //     }
-        // });
-    }); 
+        loadQuestion(currentQuestionIndex);
+    });
 </script>
