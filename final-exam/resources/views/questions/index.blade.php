@@ -15,7 +15,6 @@
                     <h5 class="card-title">{{ $question->question }}</h5>
                     <p class="card-text">Options: {{ $question->answer1 }}, {{ $question->answer2 }}, {{ $question->answer3 }}, {{ $question->answer4 }}</p>
                     <a href="{{ route('question.edit', $question) }}" class="btn btn-primary">Edit Question</a>
-
                 </div>
             </div>
         </div>

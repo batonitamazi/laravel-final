@@ -11,7 +11,7 @@ class QuizController extends Controller
 {
     public function index()
     {
-        $quizzes = Quiz::latest()->get();
+        $quizzes = Quiz::withCount('questions')->latest()->get();
         return view('quizzes.index', compact('quizzes'));
     }
 
@@ -73,5 +73,41 @@ class QuizController extends Controller
 
         return redirect()->route('quiz.index',)
             ->with('success', 'Quiz updated successfully!');
+    }
+
+    public function getQuestion(Quiz $quiz, $index)
+    {
+        $questions = $quiz->questions;
+
+        if ($index >= 0 && $index < count($questions)) {
+            $question = $questions[$index];
+
+            // You may customize the question data you want to return
+            $questionData = [
+                'question' => $question->question,
+                'options' => [
+                    $question->answer1,
+                    $question->answer2,
+                    $question->answer3,
+                    $question->answer4,
+                ],
+                'correct_answer' => $question->correct_answer,
+            ];
+
+            return response()->json(['question' => $questionData]);
+        }
+
+        return response()->json(['error' => 'Question not found'], 404);
+    }
+
+    public function destroy(Quiz $quiz)
+    {
+        $quiz->questions()->delete();
+
+        Storage::disk('public')->delete($quiz->main_photo);
+
+        $quiz->delete();
+
+        return redirect()->route('quiz.index',)->with('success', 'Quiz deleted successfully!');
     }
 }
