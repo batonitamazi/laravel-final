@@ -78,11 +78,11 @@ class QuestionController extends Controller
             'img_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($request->hasFile('main_photo')) {
+        if ($request->hasFile('img_url')) {
             Storage::disk('public')->delete($question->img_url);
 
             // Upload the new photo
-            $imagePath = $request->file('main_photo')->store('quiz_photos', 'public');
+            $imagePath = $request->file('img_url')->store('quiz_photos', 'public');
             $question->update(['img_url' => $imagePath]);
         }
 

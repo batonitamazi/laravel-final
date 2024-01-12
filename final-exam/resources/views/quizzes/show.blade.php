@@ -1,85 +1,86 @@
+@extends('welcome')
+@section('content')
 <div class="container mt-5">
-    <h1>{{ $quiz->name }}</h1>
-    <p id="question-info" class="mt-3"></p>
-    <div id="quiz-container"></div>
-    <a id="goToIndexPage" class="btn btn-primary" href="/" role="button" style="display: none;">Go Back</a>
-</div>
+        <h1>{{ $quiz->name }}</h1>
+        <p id="question-info" class="mt-3"></p>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let quizId = "{{ $quiz->id }}";
-        let quizContainer = document.getElementById('quiz-container');
-        let backBtn = document.getElementById("goToIndexPage");
-        let questionInfo = document.getElementById('question-info');
-        let currentQuestionIndex = 0;
-        let correctCount = 0;
-        let mistakenCount = 0;
+        <div class="card mt-4" id="quiz-card">
+            <img id="question-image" src="" alt="Question Image">
+            <div class="card-body">
+                <h5 class="card-title" id="question-title"></h5>
+                <div class="list-group" id="options-list"></div>
+            </div>
+        </div>
 
-        function loadQuestion(index) {
-            let xhr = new XMLHttpRequest();
-            xhr.open('GET', `/quiz/${quizId}/question/${index}`);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    let question = JSON.parse(xhr.responseText).question;
-                    displayQuestion(question);
-                }
-            };
-            xhr.send();
-        }
+        <a id="goToIndexPage" class="btn btn-primary" href="/" role="button" style="display: none;">Go Back</a>
+    </div>
 
-        function displayQuestion(question) {
-            const questionCard = document.createElement('div');
-            questionCard.classList.add('card', 'mt-4');
-            questionCard.innerHTML = `
-                <div class="card-body">
-                    <h5 class="card-title">${question.question}</h5>
-                    <div class="list-group">
-                        ${question.options.map((option, index) => `
-                            <button type="button" class="list-group-item list-group-item-action">
-                                ${option}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let quizId = "{{ $quiz->id }}";
+            let questionInfo = document.getElementById('question-info');
+            let questionTitle = document.getElementById('question-title');
+            let questionImage = document.getElementById('question-image');
+            let optionsList = document.getElementById('options-list');
+            let backBtn = document.getElementById("goToIndexPage");
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+            let mistakenCount = 0;
 
-            quizContainer.innerHTML = '';
-            quizContainer.appendChild(questionCard);
-
-            // Add a click event listener to all buttons in the list-group
-            const buttons = questionCard.querySelectorAll('.list-group-item');
-            buttons.forEach((button, index) => {
-                button.addEventListener('click', function () {
-                    selectOption(index, question.correct_answer);
-                });
-            });
-            questionInfo.textContent = `Question ${currentQuestionIndex + 1}/` + {{ { $quiz -> questions -> count() } }
-        };
-
-    }
-
-        function selectOption(selectedIndex, correctAnswer) {
-            let correct_answer_number = correctAnswer.charAt(correctAnswer.length - 1) - 1;
-            if (selectedIndex == correct_answer_number) {
-                correctCount++;
-            } else {
-                mistakenCount++;
+            function loadQuestion(index) {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', `/quiz/${quizId}/question/${index}`);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        let question = JSON.parse(xhr.responseText).question;
+                        displayQuestion(question);
+                    }
+                };
+                xhr.send();
             }
 
-            if (currentQuestionIndex < {{ $quiz -> questions -> count() }
-        } - 1) {
-        currentQuestionIndex++;
-        loadQuestion(currentQuestionIndex);
-    } else {
-        displayResult();
-    }
-        }
+            function displayQuestion(question) {
+                questionTitle.textContent = question.question;
+                questionImage.src = "{{ asset('storage/') }}" + '/' + question.img_url; // Update the image source
+                optionsList.innerHTML = '';
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.classList.add('list-group-item', 'list-group-item-action');
+                    button.textContent = option;
 
-    function displayResult() {
-        quizContainer.innerHTML = `<h3>Quiz Completed! Corrected Answers are ${correctCount} mistakes ${mistakenCount} </h3>`;
-        backBtn.style.display = '';
-    }
+                    button.addEventListener('click', function () {
+                        selectOption(index, question.correct_answer);
+                    });
 
-    loadQuestion(currentQuestionIndex);
-    });
-</script>
+                    optionsList.appendChild(button);
+                });
+
+                questionInfo.textContent = `Question ${currentQuestionIndex + 1}/${{$quiz->questions->count()}}`;
+            }
+
+            function selectOption(selectedIndex, correctAnswer) {
+                let correct_answer_number = correctAnswer.charAt(correctAnswer.length - 1) - 1;
+                if (selectedIndex == correct_answer_number) {
+                    correctCount++;
+                } else {
+                    mistakenCount++;
+                }
+                if (currentQuestionIndex < {{$quiz->questions->count()}} - 1) {
+                    currentQuestionIndex++;
+                    loadQuestion(currentQuestionIndex);
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                document.getElementById('quiz-card').style.display = 'none';
+                questionInfo.textContent = `Quiz Completed! Correct Answers: ${correctCount}, Mistakes: ${mistakenCount}`;
+                backBtn.style.display = '';
+            }
+
+            loadQuestion(currentQuestionIndex);
+        });
+    </script>
+@endsection

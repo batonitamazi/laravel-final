@@ -40,7 +40,7 @@ class QuizController extends Controller
 
            // Upload the image
 
-           $imagePath = $request->file('main_photo')->store('quiz_photos', 'public');
+        $imagePath = $request->file('main_photo')->store('quiz_photos', 'public');
 
         $quiz = auth()->user()->quizzes()->create([
             'name' => $request->input('name'),
@@ -92,6 +92,7 @@ class QuizController extends Controller
                     $question->answer4,
                 ],
                 'correct_answer' => $question->correct_answer,
+                'img_url' => $question->img_url,
             ];
 
             return response()->json(['question' => $questionData]);
